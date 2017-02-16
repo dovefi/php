@@ -137,7 +137,7 @@ switch ($mode)
 			'S_AGREEMENT'			=> true,
 			'AGREEMENT_TITLE'		=> $user->lang[$title],
 			'AGREEMENT_TEXT'		=> sprintf($user->lang[$message], $config['sitename'], generate_board_url()),
-			'U_BACK'				=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login'),
+			'U_BACK'				=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login&login=external'),
 			'L_BACK'				=> $user->lang['BACK_TO_LOGIN'],
 		));
 

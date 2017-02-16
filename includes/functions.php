@@ -4195,7 +4195,7 @@ function page_header($page_title = '', $display_online_list = false, $item_id = 
 	}
 	else
 	{
-		$u_login_logout = append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login');
+		$u_login_logout = append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login&login=external');
 		$l_login_logout = $user->lang['LOGIN'];
 	}
 

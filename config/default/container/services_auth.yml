@@ -25,6 +25,19 @@ services:
             - '%core.php_ext%'
         tags:
             - { name: auth.provider }
+            
+    auth.provider.dy:
+        class: phpbb\auth\provider\dy
+        arguments:
+            - @dbal.conn
+            - @config
+            - @passwords.manager
+            - @user
+            - @request
+            - %core.root_path%
+            - %core.php_ext%
+        tags:
+            - { name: auth.provider }
 
     auth.provider.apache:
         class: phpbb\auth\provider\apache
