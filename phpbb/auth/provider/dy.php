@@ -47,10 +47,14 @@ class dy extends \phpbb\auth\provider\base
         $this->request=$request;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
-        $this->url_base="http://192.168.3.12/phpbb3.2";
+        $this->url_base="http://bbs.dev.gdy.io/phpbb3.2";
         $this->sso_login="http://sso.kuxiao.cn/sso";
         $this->sso_info="http://sso.kuxiao.cn/sso/api/uinfo";
         $this->sso_logout="http://sso.kuxiao.cn/sso/api/logout";
+    }
+    
+    private function redirect_sso(){
+        header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
     }
     
     public function get_uinfo($token)
@@ -176,31 +180,23 @@ class dy extends \phpbb\auth\provider\base
             );
         }
         $token=$this->request->variable("token", "");
-        if (empty($token)) {
-            
-            error_log("execute login ...token is empty ,redirect to sso");
-            
+        if (empty($token)) { 
+            error_log("execute login ...token is empty ,redirect to sso"); 
             header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
             return;
         }
-        $res=$this->get_uinfo($token);
-        
-        error_log("execute login ...code is : " . $res['code']);
-        
-        if ($res['code']==301) {
-            
-            error_log("execute login ...code is 301 ,redirect to sso");
-            
+        $res=$this->get_uinfo($token); 
+        error_log("execute login ...code is : " . $res['code']); 
+        if ($res['code']==301) { 
+            error_log("execute login ...code is 301 ,redirect to sso"); 
             header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
         } elseif ($res['code']!=0) {
             return array(
                     'status'        => LOGIN_ERROR_EXTERNAL_AUTH,
                     'error_msg'     => $res->error_msg,
             );
-        }
-        
-        error_log("execute login ...token is set ,excute do_login");
-        
+        } 
+        error_log("execute login ...token is set ,excute do_login"); 
         setcookie("token", $token, 1000*60*60*24*365);
         return $this->do_login($res['usr']);
     }
@@ -246,29 +242,26 @@ class dy extends \phpbb\auth\provider\base
     public function autologin()
     {
         error_log("execute autologin ...");
-        if (!empty($this->user->data["is_registered"])) {
-            
-            error_log("execute autologin ... 1 ");
-            
+        if (!empty($this->user->data["is_registered"])) { 
+            error_log("execute autologin ... 1 "); 
+            $this->redirect_sso();
             return array();
         }
         $token=$this->request->variable("token", "", false, 3);
         if (empty($token)) {
             
             error_log("execute autologin ... 2 ");
-            
+            return $this->check_sso();
             return array();
-        }
-        
-        error_log($token);
-        
+        } 
+        error_log($token); 
         $res=$this->get_uinfo($token);
         if ($res['code']!=0) {
              
             error_log("execute autologin ...3");
             error_log($res['code']);
-            
-            return array();
+            return $this->check_sso($res);
+            #return array();
         }
         $username=$res['usr'];
         $sql = 'SELECT *
@@ -279,9 +272,7 @@ class dy extends \phpbb\auth\provider\base
         $this->db->sql_freeresult($result);
 
         if ($row) {
-            
             error_log("execute autologin ... 4");
-            
             return ($row['user_type'] == USER_INACTIVE || $row['user_type'] == USER_IGNORE) ? array() : $row;
         }
 
@@ -289,7 +280,7 @@ class dy extends \phpbb\auth\provider\base
             include($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ext);
         }
 
-            // create the user if he does not exist yet
+        // create the user if he does not exist yet
         user_add($this->user_row($username, ""));
         $sql = 'SELECT *
 				FROM ' . USERS_TABLE . "
@@ -297,15 +288,11 @@ class dy extends \phpbb\auth\provider\base
         $result = $this->db->sql_query($sql);
         $row = $this->db->sql_fetchrow($result);
         $this->db->sql_freeresult($result);
-        if ($row) {
-            
-            error_log("execute autologin ... 5");
-            
+        if ($row) { 
+            error_log("execute autologin ... 5"); 
             return $row;
-        }
-        
-        error_log("execute autologin ... 6");
-        
+        } 
+        error_log("execute autologin ... 6"); 
         return array();
     }
 
@@ -331,56 +318,45 @@ class dy extends \phpbb\auth\provider\base
         }
         return;
     }
+    
     /**
     * {@inheritdoc}
     */
     public function validate_session($user)
     {
-        error_log("excute validate_session ...");
-        //$token=$this->request->variable("token", "", false, 3);
+        error_log("excute validate_session ..."); 
         $token=$this->request->variable("token", "", false, 3);
         if (empty($token)) {
-            error_log("excute validate_session ...: token is empty");
+            error_log("excute validate_session ...: token is empty"); 
+            $this->redirect_sso();
             return true;
         }
         $res=$this->get_uinfo($token);
         if ($res["code"]==0) {
             return $res['usr']==$user['username'];
-        } else {
-            
-            return $this->check_sso();
+        } else { 
+            return $this->check_sso($res);
             //return $user['user_type'] == USER_IGNORE;
         }
     }
     
-    public function check_sso()
+    public function check_sso($res)
     {
-        $token=$this->request->variable("token", "");
-        if (empty($token)) {
-            
-            error_log("execute check_sso ...token is empty ,redirect to sso");
-            
-            header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
-            return;
-        }
-        $res=$this->get_uinfo($token);
+        $token=$this->request->variable("token", "");  
         
         error_log("execute check_sso ...code is : " . $res['code']);
         
         if ($res['code']==301) {
             
-            error_log("execute login ...code is 301 ,redirect to sso");
-            
-            header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
+            error_log("execute login ...code is 301 ,redirect to sso"); 
+            $this->redirect_sso();
         } elseif ($res['code']!=0) {
             return array(
                     'status'        => LOGIN_ERROR_EXTERNAL_AUTH,
                     'error_msg'     => $res->error_msg,
             );
-        }
-        
-        error_log("execute login ...token is set ,excute do_login");
-        
+        } 
+        error_log("execute login ...token is set ,excute do_login"); 
         setcookie("token", $token, 1000*60*60*24*365);
         
     }
