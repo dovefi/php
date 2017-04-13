@@ -100,7 +100,8 @@ class dy extends \phpbb\auth\provider\base
         return array(
                     'code'       => 0,
                     #'usr'        => $res->data->usr->attrs->basic->nickName,
-                    'usr'        => $res->data->usr->usr[0],
+                    #'usr'        => $res->data->usr->usr[0],
+                    'usr'        => $res->data->usr->account,
                 );
     }
 
