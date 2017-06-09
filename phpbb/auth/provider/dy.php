@@ -47,7 +47,7 @@ class dy extends \phpbb\auth\provider\base
         $this->request=$request;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
-        $this->url_base="http://bbs.kuxiao.cn";
+        $this->url_base="http://192.168.3.12/phpbb66";
         $this->sso_login="http://sso.kuxiao.cn/sso";
         $this->sso_info="http://sso.kuxiao.cn/sso/api/uinfo";
         $this->sso_logout="http://sso.kuxiao.cn/sso/api/logout"; 
@@ -181,6 +181,11 @@ class dy extends \phpbb\auth\provider\base
             );
         }
         $token=$this->request->variable("token", "");
+		$client = $this -> get_client();
+		if($client == "iphone" || $client == "android"){
+			$token = $this -> get_ctoken();
+		}
+		
         if (empty($token)) { 
             error_log("execute login ...token is empty ,redirect to sso"); 
             header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
@@ -199,6 +204,7 @@ class dy extends \phpbb\auth\provider\base
         } 
         error_log("execute login ...token is set ,excute do_login"); 
         setcookie("token", $token, 1000*60*60*24*365);
+		//setcookie("token", $token, 0);
         return $this->do_login($res['usr']);
     }
 
@@ -248,9 +254,18 @@ class dy extends \phpbb\auth\provider\base
             $this->redirect_sso();
             return array();
         }
+		
         $token=$this->request->variable("token", "", false, 3);
+		global $client,$ctoken;
+		//error_log($client);
+		//error_log($ctoken)
+		//$client = $this -> get_client();
+		if($client == "iphone" || $client == "android"){
+			//$token = $this -> get_ctoken(); 
+			$token = $ctoken;
+		}
+		
         if (empty($token)) {
-            
             error_log("execute autologin ... 2 ");
             $this->redirect_sso();
             return array();
@@ -327,6 +342,14 @@ class dy extends \phpbb\auth\provider\base
     {
         error_log("excute validate_session ..."); 
         $token=$this->request->variable("token", "", false, 3);
+				$client = $this -> get_client();
+		error_log($client);
+		if($client == "iphone" || $client == "android"){
+			if($this -> get_ctoken() != ""){
+				$token = $this -> get_ctoken();
+				error_log($token);
+			}
+		}
         if (empty($token)) {
             error_log("excute validate_session ...: token is empty"); 
             $this->redirect_sso();
@@ -348,10 +371,11 @@ class dy extends \phpbb\auth\provider\base
         error_log("execute check_sso ...code is : " . $res['code']);
         
         if ($res['code']==301) {
-            
+            //清除cookie
+            setcookie("token", NULL);
             error_log("execute login ...code is 301 ,redirect to sso"); 
             $this->redirect_sso();
-        } elseif ($res['code']!=0) {
+        } else if ($res['code']!=0) {
             return array(
                     'status'        => LOGIN_ERROR_EXTERNAL_AUTH,
                     'error_msg'     => $res->error_msg,
@@ -359,8 +383,27 @@ class dy extends \phpbb\auth\provider\base
         } 
         error_log("execute login ...token is set ,excute do_login"); 
         setcookie("token", $token, 1000*60*60*24*365);
+		//setcookie("token", $token, 0);
         
     }
+	
+	public function get_ctoken(){
+		$this->request->enable_super_globals();
+		if(isset($_COOKIE["ctoken"])){
+			error_log($_COOKIE["ctoken"]);
+			return $_COOKIE["ctoken"]; 
+		}
+		return "";
+	}
+	
+	public function get_client(){
+		$this->request->enable_super_globals(); 
+		if(isset($_COOKIE["client"])){
+			error_log($_COOKIE["client"]);
+			return $_COOKIE["client"]; 
+		}
+		return "";
+	}
     
     
 }

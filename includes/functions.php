@@ -4129,7 +4129,7 @@ function page_header($page_title = '', $display_online_list = false, $item_id = 
 {
 	global $db, $config, $template, $SID, $_SID, $_EXTRA_URL, $user, $auth, $phpEx, $phpbb_root_path;
 	global $phpbb_dispatcher, $request, $phpbb_container, $phpbb_admin_path;
-
+	global $is_computer;
 	if (defined('HEADER_INC'))
 	{
 		return;
@@ -4402,6 +4402,7 @@ function page_header($page_title = '', $display_online_list = false, $item_id = 
 		'U_FEED'				=> $controller_helper->route('phpbb_feed_index'),
 
 		'S_USER_LOGGED_IN'		=> ($user->data['user_id'] != ANONYMOUS) ? true : false,
+		'IS_COMPUTER'           => $is_computer,
 		'S_AUTOLOGIN_ENABLED'	=> ($config['allow_autologin']) ? true : false,
 		'S_BOARD_DISABLED'		=> ($config['board_disable']) ? true : false,
 		'S_REGISTERED_USER'		=> (!empty($user->data['is_registered'])) ? true : false,

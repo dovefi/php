@@ -23,6 +23,46 @@ $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 
+/* ---------- check from where start --------- */
+$request->enable_super_globals();
+$is_computer=true;
+$client="windows";
+$ctoken="";
+if(isset($_REQUEST['ctoken'])){
+	error_log($_REQUEST['ctoken']);
+	$ctoken = $_REQUEST['ctoken'];
+	setcookie("ctoken", $_REQUEST['ctoken'], 0);
+}
+
+if(isset($_REQUEST['client'])){
+	$client=$_REQUEST['client'];
+	error_log($_REQUEST['client']);
+	if(isset($_COOKIE['client'])){
+		if($client != $_COOKIE['client']){
+			setcookie("client", $client, 0);		
+		}
+	} else {
+		setcookie("client", $client, 0);
+	}
+} else {
+	if (isset($_COOKIE['client'])){
+		$client = $_COOKIE['client'];
+
+	} else {
+		$client="windows";
+		setcookie("client", $client, 0);
+	}
+}
+
+if($client == "android" || $client == "iphone"){ 
+	$is_computer=false;
+	error_log($is_computer);
+} else {
+	$is_computer=true;
+	error_log($is_computer);    
+} 
+/* ---------- check from where end --------- */
+
 // Start session management
 $user->session_begin();
 $auth->acl($user->data);

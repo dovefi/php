@@ -105,40 +105,42 @@
 			<!-- EVENT navbar_header_username_prepend -->
 			<div class="header-profile dropdown-container">
 				<a href="{U_PROFILE}" class="header-avatar dropdown-trigger"><!-- IF CURRENT_USER_AVATAR -->{CURRENT_USER_AVATAR} <!-- ENDIF --> {CURRENT_USERNAME_SIMPLE}</a>
-				<div class="dropdown">
-					<div class="pointer"><div class="pointer-inner"></div></div>
-					<ul class="dropdown-contents" role="menu">
-						<!-- IF U_RESTORE_PERMISSIONS -->
+				<!-- IF IS_COMPUTER -->
+					<div class="dropdown">
+						<div class="pointer"><div class="pointer-inner"></div></div>
+						<ul class="dropdown-contents" role="menu">
+							<!-- IF U_RESTORE_PERMISSIONS -->
+								<li>
+									<a href="{U_RESTORE_PERMISSIONS}">
+										<i class="icon fa-refresh fa-fw" aria-hidden="true"></i><span>{L_RESTORE_PERMISSIONS}</span>
+									</a>
+								</li>
+							<!-- ENDIF -->
+
+						<!-- EVENT navbar_header_profile_list_before -->
+
 							<li>
-								<a href="{U_RESTORE_PERMISSIONS}">
-									<i class="icon fa-refresh fa-fw" aria-hidden="true"></i><span>{L_RESTORE_PERMISSIONS}</span>
+								<a href="{U_PROFILE}" title="{L_PROFILE}" role="menuitem">
+									<i class="icon fa-sliders fa-fw" aria-hidden="true"></i><span>{L_PROFILE}</span>
 								</a>
 							</li>
-						<!-- ENDIF -->
+							<li>
+								<a href="{U_USER_PROFILE}" title="{L_READ_PROFILE}" role="menuitem">
+									<i class="icon fa-user fa-fw" aria-hidden="true"></i><span>{L_READ_PROFILE}</span>
+								</a>
+							</li>
 
-					<!-- EVENT navbar_header_profile_list_before -->
+							<!-- EVENT navbar_header_profile_list_after -->
 
-						<li>
-							<a href="{U_PROFILE}" title="{L_PROFILE}" role="menuitem">
-								<i class="icon fa-sliders fa-fw" aria-hidden="true"></i><span>{L_PROFILE}</span>
-							</a>
-						</li>
-						<li>
-							<a href="{U_USER_PROFILE}" title="{L_READ_PROFILE}" role="menuitem">
-								<i class="icon fa-user fa-fw" aria-hidden="true"></i><span>{L_READ_PROFILE}</span>
-							</a>
-						</li>
-
-						<!-- EVENT navbar_header_profile_list_after -->
-
-						<li class="separator"></li>
-						<li>
-							<a href="{U_LOGIN_LOGOUT}" title="{L_LOGIN_LOGOUT}" accesskey="x" role="menuitem">
-								<i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>{L_LOGIN_LOGOUT}</span>
-							</a>
-						</li>
-					</ul>
-				</div>
+							<li class="separator"></li>
+							<li>
+								<a href="{U_LOGIN_LOGOUT}" title="{L_LOGIN_LOGOUT}" accesskey="x" role="menuitem">
+									<i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>{L_LOGIN_LOGOUT}</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				<!-- ENDIF -->
 			</div>
 			<!-- EVENT navbar_header_username_append -->
 		</li>
