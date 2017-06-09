@@ -47,11 +47,11 @@ class dy extends \phpbb\auth\provider\base
         $this->request=$request;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
-        $this->url_base="http://bbs.dev.gdy.io/phpbb3.2";
+        $this->url_base="http://bbs.kuxiao.cn";
         $this->sso_login="http://sso.kuxiao.cn/sso";
         $this->sso_info="http://sso.kuxiao.cn/sso/api/uinfo";
-        $this->sso_logout="http://sso.kuxiao.cn/sso/api/logout";
-    }
+        $this->sso_logout="http://sso.kuxiao.cn/sso/api/logout"; 
+   }
     
     private function redirect_sso(){
         header("Location:".$this->sso_login."?url=".urlencode($this->url_base."/ucp.php?mode=login&login=external"));
@@ -252,7 +252,7 @@ class dy extends \phpbb\auth\provider\base
         if (empty($token)) {
             
             error_log("execute autologin ... 2 ");
-            return $this->check_sso();
+            $this->redirect_sso();
             return array();
         } 
         error_log($token); 
@@ -330,7 +330,7 @@ class dy extends \phpbb\auth\provider\base
         if (empty($token)) {
             error_log("excute validate_session ...: token is empty"); 
             $this->redirect_sso();
-            return true;
+            //return true;
         }
         $res=$this->get_uinfo($token);
         if ($res["code"]==0) {
