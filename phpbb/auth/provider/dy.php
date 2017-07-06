@@ -341,12 +341,19 @@ class dy extends \phpbb\auth\provider\base
     public function validate_session($user)
     {
         error_log("excute validate_session ..."); 
+		global $ctoken;
         $token=$this->request->variable("token", "", false, 3);
 				$client = $this -> get_client();
 		error_log($client);
 		if($client == "iphone" || $client == "android"){
 			if($this -> get_ctoken() != ""){
 				$token = $this -> get_ctoken();
+				if(!empty($ctoken)){
+                    error_log("global ctoken is not empty,then set to token");
+                    error_log("ctoken--->");
+                    error_log($ctoken);
+                    $token = $ctoken;
+                                }
 				error_log($token);
 			}
 		}
